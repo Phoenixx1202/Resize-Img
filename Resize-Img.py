@@ -14,16 +14,13 @@ class ImageResizerApp:
 
         # Guia para redimensionamento de imagens em lote
         self.tab2 = ttk.Frame(self.notebook)
-        self.notebook.add(self.tab2, text="Versão 1.0",)  # Removeu a "Guia Existente"
-        
-
+        self.notebook.add(self.tab2, text="Versão 1.1")
 
         # Label de informações do programa
         label_text = "Programa criado por: @Phoenixx1202"
         bold_font = ('Arial', 12, 'bold')
         label = tk.Label(root, text=label_text, background='light blue', font=bold_font)
         label.pack(side="bottom", pady=10)
-
 
         # Redimensionador de Imagens em Lote
         tk.Label(self.tab2, text="Redimensionador de Imagens", font=("Helvetica", 16)).pack(pady=10)
@@ -57,6 +54,19 @@ class ImageResizerApp:
 
         tk.Button(self.tab2, text="Selecionar Pasta de Destino", command=self.select_output_folder).pack()
 
+        # Frame para os checkboxes de seleção do formato de saída
+        output_format_frame = tk.Frame(self.tab2)
+        output_format_frame.pack(pady=5)
+
+        output_format_label = tk.Label(output_format_frame, text="Tipo de Saída:")
+        output_format_label.pack(side=tk.LEFT)
+
+        self.output_format_var = tk.StringVar(value='PNG')
+        self.png_checkbox = tk.Radiobutton(output_format_frame, text=".PNG", variable=self.output_format_var, value='PNG')
+        self.jpg_checkbox = tk.Radiobutton(output_format_frame, text=".JPG", variable=self.output_format_var, value='JPG')
+        self.png_checkbox.pack(side=tk.LEFT, padx=5)
+        self.jpg_checkbox.pack(side=tk.LEFT, padx=5)
+
         tk.Button(self.tab2, text="Redimensionar Imagens", command=self.resize_images).pack(pady=10)
 
         self.progress = ttk.Progressbar(self.tab2, orient=tk.HORIZONTAL, length=300, mode='determinate')
@@ -78,6 +88,7 @@ class ImageResizerApp:
             self.height_entry.insert(0, "391")
             self.width_entry.config(state='disabled')
             self.height_entry.config(state='disabled')
+            self.output_format_var.set('PNG')  # Selecionar .PNG por padrão
         else:
             self.width_entry.config(state='normal')
             self.height_entry.config(state='normal')
@@ -85,7 +96,7 @@ class ImageResizerApp:
             self.height_entry.delete(0, tk.END)
 
     def add_images(self):
-        files = filedialog.askopenfilenames(filetypes=[("JPEG Files", "*.jpg"),("PNG Files", "*.png")]) # ("All Files", "*.*")
+        files = filedialog.askopenfilenames(filetypes=[("JPEG Files", "*.jpg"),("PNG Files", "*.png")])
         for file in files:
             self.file_listbox.insert(tk.END, file)
 
@@ -120,15 +131,16 @@ class ImageResizerApp:
         self.progress['value'] = 0
         self.progress['maximum'] = total_files
 
+        output_format = self.output_format_var.get().lower()
         for index in range(total_files):
             file_path = self.file_listbox.get(index)
-            file_name = os.path.basename(file_path)
+            file_name = os.path.splitext(os.path.basename(file_path))[0] + f'.{output_format}'
 
             img = Image.open(file_path)
             img_resized = img.resize((width, height))
 
             output_file_path = os.path.join(output_images_folder, file_name)
-            img_resized.save(output_file_path)
+            img_resized.save(output_file_path, format=output_format.upper())
 
             self.progress['value'] += 1
             self.progress.update()
@@ -137,24 +149,19 @@ class ImageResizerApp:
         self.save_path_label.config(text=f"Imagens salvas em {output_images_folder}")
         messagebox.showinfo("Concluído", "Redimensionamento de imagens concluído e salvo.")
 
-
-
 if __name__ == "__main__":
     root = tk.Tk()
-
-
-    
-
     root.geometry("600x720")
     root.configure(bg='white')
-    icon_path = 'C:/Users/mcnet/OneDrive/Imagens/teste.ico'
+    icon_path = 'C:/Users/USER/OneDrive/Imagens/teste.ico'
     root.iconbitmap(icon_path)
     app = ImageResizerApp(root)
+    
     # Imagem do criador do programa
-    image_path = 'C:/Users/mcnet/OneDrive/Imagens/test.png'
-if os.path.exists(image_path):
-    image = tk.PhotoImage(file=image_path)
-    image_label = tk.Label(root, image=image, background='white')
-    image_label.pack(pady=10)
+    image_path = 'C:/Users/USER/OneDrive/Imagens/test.png'
+    if os.path.exists(image_path):
+        image = tk.PhotoImage(file=image_path)
+        image_label = tk.Label(root, image=image, background='white')
+        image_label.pack(pady=10)
 
     root.mainloop()
