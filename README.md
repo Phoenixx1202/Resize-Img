@@ -4,3 +4,13 @@
 
 
 Redimensionar o tamanho de imagens, ideal para consoles portateis. 
+
+
+   
+    Necessário :
+    pip install Pillow
+    pip install pyinstaller
+    
+    
+    Criar um .exe:
+    pyinstaller --onefile --windowed Resize-Img.py
